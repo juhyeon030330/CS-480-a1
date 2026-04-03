@@ -100,3 +100,9 @@ InitTestScene*.unity*
 
 # Additional ones
 *.slnx
+
+# Visual Studio Code
+.vscode/
+.history/
+*.code-workspace
+
