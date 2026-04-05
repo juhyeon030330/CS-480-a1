@@ -1,8 +1,11 @@
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MyTestPlayerScript : MonoBehaviour
 {
+    private bool isGrounded = true;
+    private bool groundJumpUsed = false;
     public int totalJumpsAllowed = 2;
     private int jumpsRemaining;
     public float jumpHeight = 10;
@@ -27,7 +30,19 @@ public class MyTestPlayerScript : MonoBehaviour
 
     void OnJump(InputValue value)
     {
-        if (value.isPressed && jumpsRemaining > 0)
+        if (!value.isPressed || jumpsRemaining <= 0) return;
+
+        // the first ground jump
+        if (isGrounded)
+        {
+            groundJumpUsed = true;
+            jumpsRemaining--;
+            float x = rb.linearVelocity.x;
+            float z = rb.linearVelocity.z;
+            rb.linearVelocity = new Vector3(x, jumpHeight, z);
+        }
+        // mid-air jump is only possible after ground jump
+        else if (groundJumpUsed)
         {
             jumpsRemaining--;
             float x = rb.linearVelocity.x;
@@ -40,7 +55,17 @@ public class MyTestPlayerScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
+            isGrounded = true;
+            groundJumpUsed = false;
             jumpsRemaining = totalJumpsAllowed;
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
         }
     }
 
